@@ -1,285 +1,631 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ফ্রেন্ড গ্রুপ</title>
+    <title id="website-title">My website URL</title>
+
+    <!-- ✅ PWA সেটআপ (নতুন যোগ করা হয়েছে) -->
+    <meta name="theme-color" content="#4a148c">
+    <meta name="description" content="Image resize, upload and share platform">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MyApp">
+
     <style>
-        :root {
-            --primary-color: #4a90e2; --secondary-color: #f5a623; --danger-color: #e74c3c;
-            --background-color: #f0f4f8; --card-bg-color: #ffffff; --text-color: #333;
-        }
-        body { font-family: 'Hind Siliguri', Arial, sans-serif; background-color: var(--background-color); color: var(--text-color); margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: var(--card-bg-color); padding: 20px; min-height: 100vh; box-sizing: border-box; }
-        .page { display: none; } .page.active { display: block; }
-        h1, h2 { text-align: center; color: var(--primary-color); }
-        #auth-page { padding-top: 50px; text-align: center; }
-        #auth-page h1 span { font-size: 36px; }
-        #google-login-btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; font-size: 18px; font-weight: bold; color: #555; background-color: #fff; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; margin-top: 30px; }
-        #google-login-btn img { width: 24px; height: 24px; margin-right: 12px; }
-        .friend-card { background-color: #fdfdfd; border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; }
-        .friend-card img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
-        #logout-btn { display: block; margin: 30px auto; padding: 10px 20px; background-color: var(--danger-color); color: white; border: none; border-radius: 8px; cursor: pointer; }
+        body { margin: 0; background-color: #e9ecef; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; box-sizing: border-box; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; }
+        .main-container { width: 100%; max-width: 800px; margin: 0 auto; position: relative; }
 
-        #chat-page .container { padding-bottom: 140px; }
-        #chat-messages { padding-bottom: 20px; }
-        .message { display: flex; align-items: flex-end; margin-bottom: 12px; max-width: 90%; }
-        .chat-avatar { width: 35px; height: 35px; border-radius: 50%; margin: 0 8px; }
-        .message-content { padding: 10px 14px; border-radius: 18px; line-height: 1.4; position: relative; }
-        .message .sender { font-weight: bold; font-size: 13px; margin-bottom: 4px; color: var(--primary-color); }
-        .message.sent { align-self: flex-end; flex-direction: row-reverse; }
-        .message.sent .message-content { background-color: #dcf8c6; }
-        .message.received { align-self: flex-start; }
-        .message.received .message-content { background-color: #f1f1f1; }
-        .chat-image { max-width: 200px; max-height: 200px; border-radius: 15px; cursor: pointer; object-fit: cover; margin-top: 5px; }
-        .delete-icon { cursor: pointer; font-size: 20px; color: #e74c3c; position: absolute; top: -8px; right: -8px; background: white; border-radius: 50%; width: 20px; height: 20px; display: none; align-items: center; justify-content: center; line-height: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-        .message.sent:hover .delete-icon { display: flex; }
-
-        #chat-form { position: fixed; bottom: 55px; left: 0; right: 0; max-width: 600px; margin: 0 auto; background-color: #fff; padding: 10px; box-shadow: 0 -2px 5px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 10px; box-sizing: border-box; z-index: 100; }
-        #image-upload-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--primary-color); padding: 5px; }
-        #chat-input { flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 20px; }
-        #chat-form button[type="submit"] { padding: 10px 15px; background-color: var(--primary-color); color: white; border: none; border-radius: 20px; cursor: pointer; }
+        .menu-icon { position: absolute; top: 10px; left: 10px; z-index: 1010; cursor: pointer; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 50%; }
+        .menu-icon svg { width: 24px; height: 24px; stroke: white; }
+        .token-balance-container { position: absolute; top: 10px; right: 10px; z-index: 10; background-color: rgba(74, 20, 140, 0.8); color: white; padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; }
         
-        #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; display: none; justify-content: space-around; background-color: #fff; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); padding: 10px 0; }
-        .nav-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #aaa; }
-        .nav-btn.active { color: var(--primary-color); }
-        .message-box { padding: 20px; min-height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .message-text { font-size: 20px; color: #333; font-weight: normal; line-height: 1.7; margin-bottom: 25px; max-width: 95%; }
-        .message-button { display: none; padding: 12px 25px; background-color: var(--secondary-color); color: white; border: none; border-radius: 8px; font-size: 18px; margin: 10px auto; cursor: pointer; }
-        #final-message { font-size: 52px; font-weight: bold; color: #d81b60; animation: pulse 1.5s infinite; text-align: center; line-height: 1.3; }
-        #final-message .heart { font-size: 90px; display: block; margin-top: 20px; }
-        @keyframes pulse { 0%{transform: scale(1);} 50%{transform: scale(1.1);} 100%{transform: scale(1);} }
+        .sidenav { height: 100%; width: 0; position: fixed; z-index: 2000; top: 0; left: 0; background-color: #111; overflow-x: hidden; transition: 0.5s; padding-top: 60px; }
+        .sidenav a { padding: 10px 15px; text-decoration: none; font-size: 18px; color: #818181; display: block; }
+        .sidenav a:hover { color: #f1f1f1; }
+        .sidenav .close-btn { position: absolute; top: 0; right: 25px; font-size: 36px; color: #818181; text-decoration: none; }
+        #sidenav-user-email { color: #fff; padding: 10px 15px; font-weight: bold; border-bottom: 1px solid #444; word-break: break-all; }
+
+        .slider-container { width: 100%; overflow: hidden; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); height: 250px; background-color: #fff; }
+        .slider-wrapper { display: flex; width: 300%; height: 100%; transition: transform 0.8s ease-in-out; }
+        .slide { width: 33.333%; height: 100%; flex-shrink: 0; }
+        .ad-spot { width: 100%; max-width: 800px; margin: 20px auto; text-align: center; min-height: 50px; display: flex; justify-content: center; }
+        
+        .content-area, .pricing-section { width: 100%; max-width: 800px; margin: 20px auto 0; text-align: center; padding: 30px 20px; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+        
+        #upload-container h1 { font-size: 28px; font-weight: 700; color: #333; margin: 0 0 20px; }
+        .options-container { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; max-width: 450px; margin: 0 auto 25px; }
+        .options-container select { width: 100%; padding: 12px; font-size: 15px; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; background-color: #fff; }
+        .choose-images-button { background-color: #0d6efd; color: white; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; width: 100%; max-width: 450px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
+        
+        #progress-container { display: none; max-width: 450px; margin: 20px auto; padding: 20px; border: 2px dashed #0d6efd; border-radius: 10px; }
+        .links-container { margin-top: 20px; text-align: left; max-width: 500px; margin: 20px auto 0; display: none; }
+        .link-item { margin-bottom: 15px; }
+        .link-item .link-box { display: flex; }
+        .link-item input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px 0 0 8px; font-size: 14px; border-right: none; background-color: #f8f9fa; }
+        .link-item button { padding: 10px 15px; border: 1px solid #ccc; background-color: #e9ecef; border-radius: 0 8px 8px 0; cursor: pointer; }
+
+        .pricing-section { padding-top: 0; }
+        .plan-card { background-color: #4a148c; color: white; padding: 25px 20px; border-radius: 15px; margin-bottom: 20px; cursor: pointer; transition: transform 0.3s ease; }
+        .plan-card:hover { transform: translateY(-5px); }
+        
+        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border-radius: 12px; width: 90%; max-width: 380px; position: relative; max-height: 90vh; overflow-y: auto; box-sizing: border-box; }
+        .modal-close-button { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .form-group { margin-bottom: 15px; }
+        .form-group input { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .modal-button { width: 100%; padding: 12px; font-size: 16px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; background-color: #0d6efd; color: white; }
+        .google-btn { background-color: #db4437; margin-top: 10px; }
+        .switch-form-link { text-align: center; margin-top: 15px; }
+        .switch-form-link a { color: #0d6efd; cursor: pointer; }
+
+        .bkash-header { padding: 10px; text-align: center; border-bottom: 1px solid #eee; min-height: 45px; display: flex; align-items: center; justify-content: center; }
+        #payment-banner-img { max-height: 45px; max-width: 100%; object-fit: contain; }
+        .bkash-body { padding: 10px 0; }
+        .bkash-amount { font-size: 32px; font-weight: bold; text-align: center; margin: 10px 0 15px; color: #333; }
+        .bkash-pink-box { background-color: #E2136E; color: white; padding: 20px; border-radius: 12px; box-sizing: border-box; width: 100%; }
+        .bkash-pink-box h3 { margin: 0 0 15px; text-align: center; font-size: 18px; color: #fff; font-weight: bold; }
+        .bkash-pink-box input { width: 100%; padding: 12px; border-radius: 8px; border: none; margin-top: 10px; margin-bottom: 15px; box-sizing: border-box; text-align: center; font-size: 15px; font-weight: bold; color: #333; }
+        .bkash-instructions { list-style: none; padding: 0; margin: 15px 0; font-size: 13px; text-align: left; color: #ffffff; line-height: 1.6; }
+        .bkash-instructions li { margin-bottom: 10px; }
+        .bkash-number-copy { display: flex; align-items: center; background: white; border-radius: 8px; padding: 6px 10px; margin: 8px 0; }
+        .bkash-number-copy span { color: #333; font-weight: bold; font-size: 16px; flex-grow: 1; text-align: center; }
+        .bkash-number-copy button { background: #e9ecef; border: 1px solid #ccc; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; color: #333; }
+        .verify-button { width: 100%; padding: 14px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; background-color: #a1004a; color: white; margin-top: 5px; }
     </style>
+    
+    <script type="text/javascript">
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.onkeydown = function(e) { 
+            if(e.keyCode == 123) return false;
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false;
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+        }
+    </script>
 </head>
 <body>
 
-    <div id="auth-page" class="page active">
-        <div class="container">
-             <h1><span>🤝</span> ফ্রেন্ড গ্রুপে স্বাগতম <span>🤝</span></h1>
-            <h2>গ্রুপে যোগ দিতে লগইন করুন</h2>
-            <button id="google-login-btn"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Icon">গুগল দিয়ে লগইন করুন</button>
-        </div>
+    <!-- ✅ অফলাইন ব্যানার (নতুন যোগ করা হয়েছে) -->
+    <div id="offline-banner" style="display:none; background-color:#d32f2f; color:#fff; text-align:center; padding:8px 10px; font-size:14px; font-weight:bold; z-index:3000;">⚠️ আপনি এখন অফলাইনে আছেন — লগইন, আপলোড ও ব্যানার লোড হবে না</div>
+    
+    <div id="my-sidenav" class="sidenav">
+        <a href="javascript:void(0)" class="close-btn">&times;</a>
+        <div id="sidenav-user-email" style="display: none;"></div>
+        <a href="#" id="register-link">Register</a> 
+        <a href="#" id="login-link">Login</a> 
+        <a href="#" id="my-tokens-link">My Tokens</a> 
+        <a href="#" id="usage-history-link">Usage History</a> 
+        <a href="#" id="logout-link" style="display: none;">Logout</a>
     </div>
 
-    <div id="app-container">
-        <div id="home-page" class="page">
-            <div class="container">
-                <h1 id="welcome-title"></h1>
-                <div id="friend-list"></div>
-                <button id="logout-btn">লগ-আউট</button>
-            </div>
-        </div>
-        <div id="chat-page" class="page">
-            <div class="container">
-                <h1>💬 গ্রুপ চ্যাট 💬</h1>
-                <div id="chat-messages"></div>
-            </div>
-            <form id="chat-form">
-                <button type="button" id="image-upload-btn">📎</button>
+    <div class="main-container">
+        <div class="menu-icon" id="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></div>
+        <div class="token-balance-container">Balance: <span id="token-balance">0</span> Tokens</div>
+        <div class="slider-container"><div class="slider-wrapper"><div class="slide" id="slide1"></div> <div class="slide" id="slide2"></div> <div class="slide" id="slide3"></div></div></div>
+    </div>
+
+    <div id="ad-spot-middle" class="ad-spot"></div>
+
+    <div class="content-area">
+        <div id="upload-section">
+            <h1 id="upload-header">Post your images here</h1>
+            <div id="upload-container">
+                <div class="options-container">
+                    <select id="resize-options">
+                        <option value="">Don't resize image</option>
+                        <optgroup label="📱 APK & App Store Icons">
+                            <option value="sq_512">512 × 512 (Play Store Main Icon)</option>
+                            <option value="sq_1024">1024 × 1024 (App Store / HD Icon)</option>
+                            <option value="sq_192">192 × 192 (Android xxxhdpi Icon)</option>
+                            <option value="sq_144">144 × 144 (Android xxhdpi Icon)</option>
+                            <option value="sq_96">96 × 96 (Android xhdpi Icon)</option>
+                            <option value="sq_72">72 × 72 (Android hdpi Icon)</option>
+                            <option value="sq_48">48 × 48 (Android mdpi Icon)</option>
+                        </optgroup>
+                        <optgroup label="📐 Maximum Width Resize">
+                            <option value="1024">1024px maximum width</option>
+                            <option value="800">800px maximum width</option>
+                            <option value="640">640px maximum width</option>
+                            <option value="320">320px maximum width</option>
+                        </optgroup>
+                    </select>
+                    <select id="expiration-options">
+                        <option value="">Auto delete image (no expiration)</option>
+                        <option value="1">After 1 day</option>
+                        <option value="7">After 1 week</option>
+                        <option value="30">After 1 month</option>
+                    </select>
+                </div>
                 <input type="file" id="image-input" accept="image/*" style="display: none;">
-                <input type="text" id="chat-input" placeholder="মেসেজ লিখুন..." autocomplete="off">
-                <button type="submit">পাঠান</button>
-            </form>
-        </div>
-        <div id="messages-page" class="page">
-             <div class="container">
-                <h1>💌 বিশেষ বার্তা 💌</h1>
-                <div id="message-display" class="message-box"></div>
+                <button class="choose-images-button" id="custom-upload-button">CHOOSE IMAGES</button>
             </div>
-        </div>
-        <div id="bottom-nav">
-            <button class="nav-btn" data-page="home-page">🏠</button>
-            <button class="nav-btn" data-page="chat-page">💬</button>
-            <button class="nav-btn" data-page="messages-page">💌</button>
+            <div id="progress-container"><div id="file-name"></div><div style="background-color: #e9ecef; border-radius: 20px;"><div id="progress-bar" class="progress-bar" style="height: 20px; background-color: #0d6efd; border-radius: 20px; width: 0%;"></div></div></div>
+            <div class="links-container" id="links-container"></div>
         </div>
     </div>
+    
+    <div class="pricing-section">
+        <h2 id="plans-header">Our Subscription Plans</h2>
+        <div class="plan-card free-token-notice">Register now to get 10 free tokens!</div>
+        <div class="plan-card" data-plan="1-Month Plan" data-price="50"><h3>1-Month Plan</h3><div>50 BDT</div></div>
+        <div class="plan-card" data-plan="2-Month Plan" data-price="100"><h3>2-Month Plan</h3><div>100 BDT</div></div>
+        <div class="plan-card" data-plan="3-Month Plan" data-price="150"><h3>3-Month Plan</h3><div>150 BDT</div></div>
+        <div class="plan-card" data-plan="1-Year Plan" data-price="500"><h3>1-Year Plan</h3><div>500 BDT</div></div>
+    </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <div id="ad-spot-bottom" class="ad-spot">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : 'b67205d248cc67f51bd65574ecf9887e',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="https://www.highrevenueformat.com/b67205d248cc67f51bd65574ecf9887e/invoke.js"></script>
+    </div>
+
+    <div id="register-login-modal" class="modal-overlay"></div>
+    <div id="payment-modal-overlay" class="modal-overlay"></div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDEmxPZisclLYns5MKnj-ar9fSOjZ_Glho",
-            authDomain: "my-incame-chait.firebaseapp.com",
-            databaseURL: "https://my-incame-chait-default-rtdb.firebaseio.com",
-            projectId: "my-incame-chait",
-            storageBucket: "my-incame-chait.appspot.com",
-            messagingSenderId: "610034577258",
-            appId: "1:610034577258:web:cd870a6960a697258ebf13"
+        const firebaseConfig = { 
+            apiKey: "AIzaSyDGvlFAh8VE3rQJQ4xmkgumTJjoYw-hzHk", 
+            authDomain: "stylezone24-cf067.firebaseapp.com", 
+            databaseURL: "https://stylezone24-cf067-default-rtdb.firebaseio.com",
+            projectId: "stylezone24-cf067", 
+            storageBucket: "stylezone24-cf067.appspot.com", 
+            messagingSenderId: "2467516999", 
+            appId: "1:2467516999:web:a14328f6a66d49b6dd5762" 
         };
         
-        const IMGBB_API_KEY = "d617dab9d2117228e38549791d42104a";
-
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const database = firebase.database();
+        const auth = firebase.auth();
+
+        function setContent(el, code) {
+            if(!el || !code) return;
+            if(code.startsWith('http')) { el.innerHTML = `<img src="${code}" style="width:100%;height:100%;object-fit:cover;">`; } 
+            else {
+                el.innerHTML = code;
+                Array.from(el.querySelectorAll("script")).forEach(oldScript => {
+                    const newScript = document.createElement("script");
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            }
+        }
+        
+        // ✅ অফলাইন এরর হ্যান্ডেলিং যোগ করা হয়েছে (শেষে error callback)
+        database.ref('parvezdatabase').on('value', s => { 
+            const d = s.val(); 
+            if(d) { 
+                setContent(document.getElementById('slide1'), d.banner1_code); 
+                setContent(document.getElementById('slide2'), d.banner2_code); 
+                setContent(document.getElementById('slide3'), d.banner3_code); 
+                setContent(document.getElementById('ad-spot-middle'), d.ad_spot_code);
+            }
+        }, error => console.log('⚠️ ব্যানার লোড হয়নি (অফলাইন?):', error.message));
+        
+        let paymentBannerUrl = "https://i.ibb.co/L9H8qD4/bkash-logo.png";
+        let paymentNumber = "01760138572";
+        
+        database.ref('website_settings').on('value', snapshot => { 
+            const settings = snapshot.val();
+            if(settings) {
+                document.title = settings.title || 'My website URL';
+                document.getElementById('upload-header').textContent = settings.uploadHeader || 'Post your images here';
+                document.getElementById('plans-header').textContent = settings.plansHeader || 'Our Subscription Plans';
+                if(settings.paymentBannerUrl) {
+                    paymentBannerUrl = settings.paymentBannerUrl;
+                }
+                paymentNumber = settings.paymentNumber || paymentNumber;
+            }
+        }, error => console.log('⚠️ সেটিংস লোড হয়নি (অফলাইন?):', error.message));
 
         document.addEventListener('DOMContentLoaded', () => {
-            const authPage = document.getElementById('auth-page');
-            const appContainer = document.getElementById('app-container');
-            const bottomNav = document.getElementById('bottom-nav');
-            const googleLoginBtn = document.getElementById('google-login-btn');
-            const logoutBtn = document.getElementById('logout-btn');
-            const pages = document.querySelectorAll('#app-container .page');
-            const navBtns = document.querySelectorAll('.nav-btn');
-            const imageUploadBtn = document.getElementById('image-upload-btn');
-            const imageInput = document.getElementById('image-input');
-            const chatMessagesDiv = document.getElementById('chat-messages');
-            const chatForm = document.getElementById('chat-form');
-            const chatInput = document.getElementById('chat-input');
+            let currentIndex = 0;
+            setInterval(() => { const wrapper = document.querySelector('.slider-wrapper'); if(wrapper) { wrapper.style.transform = `translateX(-${(currentIndex++ % 3) * 100 / 3}%)`; } }, 5000);
             
+            const sidenav = document.getElementById('my-sidenav'), menuIcon = document.getElementById('menu-icon'), closeBtn = document.querySelector('.sidenav .close-btn');
+            const tokenBalanceSpan = document.getElementById('token-balance'), customUploadButton = document.getElementById('custom-upload-button'), imageInput = document.getElementById('image-input');
+            const uploadContainer = document.getElementById('upload-container'), progressContainer = document.getElementById('progress-container'), linksContainer = document.getElementById('links-container');
+            const pricingSection = document.querySelector('.pricing-section');
+
+            const encodeEmail = email => email.replace(/\./g, ',');
+
+            function createInitialUserData(user) {
+                const userRef = database.ref('users/' + encodeEmail(user.email));
+                userRef.once('value', snapshot => {
+                    if (!snapshot.exists()) {
+                        userRef.set({ tokens: 10, usageHistory: 0, createdAt: Date.now() });
+                    }
+                });
+            }
+
             auth.onAuthStateChanged(user => {
                 if (user) {
-                    database.ref('users/' + user.uid).set({ name: user.displayName, photoURL: user.photoURL });
-                    document.getElementById('welcome-title').innerText = `👋 ${user.displayName}`;
-                    authPage.style.display = 'none';
-                    appContainer.style.display = 'block';
-                    bottomNav.style.display = 'flex';
-                    showPage('home-page');
-                    listenForFriends();
-                    listenForMessages();
+                    createInitialUserData(user);
+                    document.getElementById('sidenav-user-email').style.display = 'block';
+                    document.getElementById('sidenav-user-email').textContent = user.email;
+                    document.getElementById('register-link').style.display = 'none';
+                    document.getElementById('login-link').style.display = 'none';
+                    document.getElementById('logout-link').style.display = 'block';
+
+                    database.ref('users/' + encodeEmail(user.email) + '/tokens').on('value', snap => { 
+                        tokenBalanceSpan.textContent = snap.val() !== null ? snap.val() : 0; 
+                    });
                 } else {
-                    authPage.style.display = 'block';
-                    appContainer.style.display = 'none';
-                    bottomNav.style.display = 'none';
+                    document.getElementById('sidenav-user-email').style.display = 'none';
+                    document.getElementById('register-link').style.display = 'block';
+                    document.getElementById('login-link').style.display = 'block';
+                    document.getElementById('logout-link').style.display = 'none';
+                    tokenBalanceSpan.textContent = '0';
                 }
             });
 
-            googleLoginBtn.addEventListener('click', () => {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                auth.signInWithPopup(provider).catch(error => console.error("Google Sign-In Error:", error));
-            });
+            menuIcon.onclick = () => sidenav.style.width = '250px';
+            closeBtn.onclick = () => sidenav.style.width = '0';
 
-            logoutBtn.addEventListener('click', () => auth.signOut());
-
-            const showPage = (pageId) => {
-                pages.forEach(p => p.classList.remove('active'));
-                document.getElementById(pageId).classList.add('active');
-                navBtns.forEach(b => b.classList.remove('active'));
-                document.querySelector(`.nav-btn[data-page="${pageId}"]`)?.classList.add('active');
-                if (pageId === 'messages-page') startMessageSequence();
-            };
-            navBtns.forEach(btn => btn.addEventListener('click', () => showPage(btn.dataset.page)));
-
-            imageUploadBtn.addEventListener('click', () => imageInput.click());
-            imageInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                const formData = new FormData();
-                formData.append('key', IMGBB_API_KEY);
-                formData.append('image', file);
+            const regLogModal = document.getElementById('register-login-modal');
+            const showAuthModal = (view) => {
+                regLogModal.innerHTML = `
+                    <div class="modal-content">
+                        <span class="modal-close-button">&times;</span>
+                        <div style="display:${view==='register'?'block':'none'}">
+                            <h2>Create Account</h2>
+                            <form id="register-form">
+                                <div class="form-group"><input type="email" id="reg-email" placeholder="Enter Email" required></div>
+                                <div class="form-group"><input type="password" id="reg-password" placeholder="Enter Password" required></div>
+                                <button type="submit" class="modal-button">Register</button>
+                            </form>
+                            <button class="modal-button google-btn" id="google-signup-btn">Sign in with Google</button>
+                            <p class="switch-form-link">Already have an account? <a href="#" id="show-login-view">Login</a></p>
+                        </div>
+                        <div style="display:${view==='login'?'block':'none'}">
+                            <h2>Login</h2>
+                            <form id="login-form">
+                                <div class="form-group"><input type="email" id="login-email" placeholder="Enter Email" required></div>
+                                <div class="form-group"><input type="password" id="login-password" placeholder="Enter Password" required></div>
+                                <button type="submit" class="modal-button">Login</button>
+                            </form>
+                            <button class="modal-button google-btn" id="google-login-btn">Log in with Google</button>
+                            <p class="switch-form-link">Don't have an account? <a href="#" id="show-register-view">Register</a></p>
+                        </div>
+                    </div>`;
+                regLogModal.style.display = 'block';
+                regLogModal.querySelector('.modal-close-button').onclick = () => regLogModal.style.display = 'none';
+                regLogModal.querySelector('#show-login-view').onclick = (e) => { e.preventDefault(); showAuthModal('login'); };
+                regLogModal.querySelector('#show-register-view').onclick = (e) => { e.preventDefault(); showAuthModal('register'); };
                 
-                const tempId = 'temp_' + Date.now();
-                appendMessage({ uid: auth.currentUser.uid, sender: auth.currentUser.displayName, photoURL: auth.currentUser.photoURL, text: "ছবি আপলোড হচ্ছে...", tempId: tempId });
+                document.getElementById('register-form').onsubmit = e => {
+                    e.preventDefault();
+                    const email = document.getElementById('reg-email').value;
+                    const password = document.getElementById('reg-password').value;
 
-                fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData })
-                .then(response => response.json())
-                .then(result => {
-                    document.getElementById(tempId)?.remove();
-                    if (result.success) {
-                        sendMessage(null, result.data.url);
-                    } else {
-                        alert("ছবি আপলোড করা যায়নি। কারণ: " + result.error.message);
-                    }
-                })
-                .catch(error => {
-                    document.getElementById(tempId)?.remove();
-                    alert("ছবি আপলোড করার সময় একটি নেটওয়ার্ক সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
-                    console.error('ImgBB Upload Error:', error);
-                });
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .then((userCredential) => {
+                            createInitialUserData(userCredential.user);
+                            userCredential.user.sendEmailVerification();
+                            alert('Registration successful! 10 free tokens added. Verification email sent.');
+                            regLogModal.style.display = 'none';
+                        })
+                        .catch(error => alert(error.message));
+                };
 
-                imageInput.value = '';
-            });
+                document.getElementById('login-form').onsubmit = e => {
+                    e.preventDefault();
+                    const email = document.getElementById('login-email').value;
+                    const password = document.getElementById('login-password').value;
 
-            chatForm.addEventListener('submit', e => {
-                e.preventDefault();
-                const text = chatInput.value.trim();
-                if (text) { sendMessage(text, null); chatInput.value = ''; }
-            });
+                    auth.signInWithEmailAndPassword(email, password)
+                        .then(() => {
+                            regLogModal.style.display = 'none';
+                            alert('Login successful!');
+                        })
+                        .catch(error => alert('Invalid credentials or user not found.'));
+                };
 
-            function sendMessage(text, imageUrl) {
-                if ((!text && !imageUrl) || !auth.currentUser) return;
-                database.ref('messages').push({
-                    uid: auth.currentUser.uid, sender: auth.currentUser.displayName, photoURL: auth.currentUser.photoURL,
-                    text: text || '', imageUrl: imageUrl || '', timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
-            }
+                const handleGoogleSignIn = () => {
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    auth.signInWithPopup(provider)
+                        .then(result => {
+                            createInitialUserData(result.user);
+                            regLogModal.style.display = 'none';
+                            alert('Google login successful!');
+                        })
+                        .catch(error => alert(error.message));
+                };
 
-            function listenForMessages() {
-                const messagesRef = database.ref('messages').limitToLast(100);
-                chatMessagesDiv.innerHTML = '';
-                messagesRef.on('child_added', snapshot => appendMessage(snapshot.val(), snapshot.key));
-                messagesRef.on('child_removed', snapshot => {
-                    const elementToRemove = document.getElementById(snapshot.key);
-                    if (elementToRemove) elementToRemove.remove();
-                });
-            }
+                const gBtn1 = document.getElementById('google-signup-btn');
+                const gBtn2 = document.getElementById('google-login-btn');
+                if(gBtn1) gBtn1.onclick = handleGoogleSignIn;
+                if(gBtn2) gBtn2.onclick = handleGoogleSignIn;
 
-            function appendMessage(msg, msgKey) {
-                 if(!msg || !auth.currentUser) return;
-                 const msgDiv = document.createElement('div');
-                 msgDiv.id = msg.tempId || msgKey;
-                 msgDiv.className = `message ${msg.uid === auth.currentUser.uid ? 'sent' : 'received'}`;
-                 const photo = msg.photoURL || `https://api.multiavatar.com/${msg.sender}.png`;
-                 let contentHTML = `<div class="sender">${msg.sender}</div>`;
-                 if (msg.imageUrl) contentHTML += `<img src="${msg.imageUrl}" class="chat-image" alt="ছবি">`;
-                 if (msg.text) contentHTML += `<div>${msg.text}</div>`;
-                 const deleteIconHTML = msg.uid === auth.currentUser.uid && !msg.tempId ? `<span class="delete-icon" data-key="${msgKey}">❌</span>` : '';
-                 msgDiv.innerHTML = `<img src="${photo}" class="chat-avatar"><div class="message-content">${contentHTML}${deleteIconHTML}</div>`;
-                 chatMessagesDiv.appendChild(msgDiv);
-                 chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-            }
+                sidenav.style.width = '0';
+            };
 
-            chatMessagesDiv.addEventListener('click', (e) => {
-                if (e.target.classList.contains('delete-icon')) {
-                    const msgKey = e.target.dataset.key;
-                    if (confirm("আপনি কি সত্যিই এই মেসেজটি মুছে ফেলতে চান?")) {
-                        database.ref('messages/' + msgKey).remove();
-                    }
-                }
-            });
+            document.getElementById('register-link').onclick = e => { e.preventDefault(); showAuthModal('register'); };
+            document.getElementById('login-link').onclick = e => { e.preventDefault(); showAuthModal('login'); };
+            document.getElementById('logout-link').onclick = e => { e.preventDefault(); auth.signOut().then(() => alert('Logout successful!')); };
             
-            const friendList = document.getElementById('friend-list');
-            function listenForFriends() {
-                 database.ref('users').on('value', snapshot => {
-                    friendList.innerHTML = '';
-                    const users = snapshot.val();
-                    if(users) {
-                        Object.values(users).forEach(user => {
-                            const card = document.createElement('div');
-                            card.className = 'friend-card';
-                            const photo = user.photoURL || `https://api.multiavatar.com/${user.name}.png`;
-                            card.innerHTML = `<img src="${photo}" alt="ছবি"><h3>${user.name}</h3>`;
-                            friendList.appendChild(card);
-                        });
-                    }
+            document.getElementById('my-tokens-link').onclick = e => { 
+                e.preventDefault(); 
+                if(auth.currentUser){
+                    alert(`Current balance: ${tokenBalanceSpan.textContent} Tokens`); 
+                } else { alert('Please login first.'); }
+            };
+
+            document.getElementById('usage-history-link').onclick = e => { 
+                e.preventDefault(); 
+                const user = auth.currentUser;
+                if(user){ 
+                    database.ref('users/' + encodeEmail(user.email) + '/usageHistory').once('value', s => alert(`You have used ${s.val() || 0} tokens in total.`)); 
+                } else { alert('Please login first.'); }
+            };
+
+            customUploadButton.addEventListener('click', () => {
+                const user = auth.currentUser;
+                if (!user) {
+                    alert('Please login or register to upload images.');
+                    showAuthModal('login');
+                    return;
+                }
+                if (parseInt(tokenBalanceSpan.textContent) > 0) imageInput.click();
+                else { alert('You have used all your tokens. Please buy a plan.'); pricingSection.scrollIntoView({ behavior: 'smooth' }); }
+            });
+
+            imageInput.addEventListener('change', e => { 
+                if (e.target.files[0]) {
+                    processAndUpload(e.target.files[0]);
+                }
+            });
+
+            // Resizing function (Handles both Standard Max-width & Square App Icons)
+            function processImageOption(file, optionValue) {
+                return new Promise((resolve) => {
+                    if (!optionValue) { resolve(file); return; }
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+
+                            if (optionValue.startsWith('sq_')) {
+                                const size = parseInt(optionValue.replace('sq_', ''));
+                                canvas.width = size;
+                                canvas.height = size;
+                                ctx.drawImage(img, 0, 0, size, size);
+                            } else {
+                                const maxWidth = parseInt(optionValue);
+                                if (img.width <= maxWidth) { resolve(file); return; }
+                                const ratio = maxWidth / img.width;
+                                canvas.width = maxWidth;
+                                canvas.height = img.height * ratio;
+                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            }
+
+                            canvas.toBlob((blob) => {
+                                resolve(new File([blob], file.name, { type: 'image/png' }));
+                            }, 'image/png', 0.95);
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
                 });
             }
 
-            const messages = [ "বন্ধু, আমাদের এই গ্রুপে তোমাকে স্বাগত জানাতে পেরে আমরা সবাই অনেক আনন্দিত! 🎉 এটা শুধু একটা গ্রুপ নয়, এটা আমাদের একটা পরিবার। এখানে আমরা সবাই মিলে হাসব, গল্প করব আর একে অপরের পাশে থাকব, ঠিক যেমনটা সত্যিকারের বন্ধুরা থাকে। 🥳", "বন্ধুত্ব হলো এমন একটি সম্পর্ক যা রক্ত দিয়ে নয়, মন দিয়ে তৈরি হয়। ❤️ তোমার মতো একজন বন্ধু পাওয়া জীবনের সেরা উপহারগুলোর মধ্যে একটি। ধন্যবাদ আমার জীবনে আসার জন্য এবং এটিকে আরও সুন্দর করে তোলার জন্য। 🎁", "মনে রেখো, জীবনের পথে চলতে গিয়ে যদি কখনো নিজেকে একা মনে হয়, তাহলে শুধু একবার আমাদের কথা ভেবো। 🤝 আমরা বন্ধুরা সবসময় তোমার পাশে আছি, যেকোনো পরিস্থিতিতে, যেকোনো সময়ে। তোমার মুখের এক চিলতে হাসির জন্য আমরা সবকিছু করতে পারি। 🤗", "আমাদের একসাথে কাটানো সময়গুলো, সেইসব মজার স্মৃতি, আর পাগলামি ভরা দিনগুলোর কথা ভাবলে এখনো হাসি পায়। 😂 চলো, আমরা ভবিষ্যতেও এরকম আরও অনেক সুন্দর মুহূর্ত তৈরি করি যা সারাজীবন আমাদের মনে থাকবে। 📸", "একজন ভালো বন্ধু হলো আয়নার মতো, যে তোমার ভালো দিকগুলো দেখায়; আর ছায়ার মতো, যে তোমার কঠিন সময়েও পাশে থাকে। 🌟 আমি ভাগ্যবান যে তোমার মতো একজন বন্ধু পেয়েছি যে আমার শক্তি এবং দুর্বলতা দুটোই জানে, কিন্তু কখনো বিচার করে না।", "কিছু সম্পর্ক আমাদের জীবনে আশীর্বাদ হয়ে আসে। আমাদের বন্ধুত্ব ঠিক তেমনই একটি আশীর্বাদ। 🙏 এই সম্পর্কটা যত্ন করে বাঁচিয়ে রাখার দায়িত্ব আমাদের সবার। চলো, কথা দিই, যত ঝড়ই আসুক, আমরা একে অপরের হাত কখনো ছাড়ব না।", "জীবনের সবচেয়ে বড় পাওয়া হলো এমন কিছু বন্ধু থাকা, যাদের কাছে মন খুলে সব কথা বলা যায়, কোনো কিছু না ভেবেই। 😌 তুমি আমার সেইরকম একজন বন্ধু, যার কাছে আমি আমার সব গোপন কথা, সব স্বপ্ন, সব ভয়ের কথা বলতে পারি। তোমার কাছে আমি চিরকৃতজ্ঞ।", "আমাদের এই বন্ধুত্বের বাঁধন যেন সারাজীবন অটুট থাকে। 💪 সময়ের সাথে সাথে হয়তো অনেক কিছু বদলে যাবে, আমাদের ব্যস্ততা বাড়বে, দূরত্বও তৈরি হতে পারে, কিন্তু আমাদের এই বন্ধুত্ব যেন কখনো না বদলায়। এই প্রার্থনা করি।", "তুমি শুধু আমার বন্ধু নও, তুমি আমার অনুপ্রেরণা। তোমার ইতিবাচক মনোভাব, তোমার কাজের প্রতি একাগ্রতা আর তোমার সুন্দর মনটা আমাকে সবসময় মুগ্ধ করে। 😊 তোমার কাছ থেকে আমার অনেক কিছু শেখার আছে। পাশে থেকো এভাবেই, সারাজীবন।", "শেষ পর্যন্ত, বন্ধুত্ব কোনো বড় ব্যাপার নয়, এটা লক্ষ লক্ষ ছোট ছোট ভালো লাগার সমষ্টি। ✨ আমাদের একসাথে চা খাওয়া, অকারণে হাসা, একে অপরের বিপদে ছুটে যাওয়া—এই ছোট ছোট মুহূর্তগুলোই আমাদের বন্ধুত্বকে অসাধারণ করে তুলেছে। চলো, এই বন্ধুত্বকে প্রতিদিন উদযাপন করি! 🚀" ];
-            const messageDisplay = document.getElementById('message-display');
-            let currentMessageIndex = 0;
-            function showNextMessage() {
-                messageDisplay.innerHTML = '';
-                if (currentMessageIndex < messages.length) {
-                    const messageText = document.createElement('p');
-                    messageText.className = 'message-text';
-                    messageText.innerText = messages[currentMessageIndex];
-                    const nextButton = document.createElement('button');
-                    nextButton.className = 'message-button';
-                    nextButton.style.display = 'inline-block';
-                    nextButton.innerText = "পরবর্তী বার্তা দেখো";
-                    nextButton.onclick = () => { currentMessageIndex++; showNextMessage(); };
-                    messageDisplay.appendChild(messageText);
-                    messageDisplay.appendChild(nextButton);
-                } else {
-                    messageDisplay.innerHTML = `<div id="final-message">FRIEND<br>GROUP<br>LIFE<span class="heart">❤️</span></div>`;
+            async function processAndUpload(file) {
+                const resizeOpt = document.getElementById('resize-options').value;
+                const expirationOpt = document.getElementById('expiration-options').value;
+                const user = auth.currentUser;
+                
+                uploadContainer.style.display = 'none';
+                progressContainer.style.display = 'block';
+                document.getElementById('file-name').textContent = `Processing: ${file.name}`;
+                document.getElementById('progress-bar').style.width = '20%';
+
+                try {
+                    const processedFile = await processImageOption(file, resizeOpt);
+                    document.getElementById('file-name').textContent = `Uploading: ${processedFile.name}`;
+                    document.getElementById('progress-bar').style.width = '40%';
+
+                    const userRef = database.ref('users/' + encodeEmail(user.email));
+                    const tokenTransactionResult = await userRef.child('tokens').transaction((currentTokens) => {
+                        if (currentTokens === null) return 0; 
+                        if (currentTokens <= 0) return;
+                        return currentTokens - 1;
+                    });
+
+                    if (!tokenTransactionResult.committed) {
+                        throw new Error("Insufficient tokens or transaction failed.");
+                    }
+
+                    userRef.child('usageHistory').transaction(current => (current || 0) + 1);
+
+                    const formData = new FormData();
+                    formData.append('image', processedFile);
+                    let url = `https://api.imgbb.com/1/upload?key=07bb6a485d95048a7add76d3207d44be`;
+                    
+                    document.getElementById('progress-bar').style.width = '60%';
+                    const response = await fetch(url, { method: 'POST', body: formData });
+                    const result = await response.json();
+                    
+                    if(result.success) {
+                        document.getElementById('progress-bar').style.width = '100%';
+                        
+                        if(expirationOpt) {
+                            const expDays = parseInt(expirationOpt);
+                            const expiryDate = Date.now() + (expDays * 24 * 60 * 60 * 1000);
+                            database.ref('image_metadata/' + result.data.id).set({
+                                deleteUrl: result.data.delete_url,
+                                expiryTimestamp: expiryDate,
+                                user: user.email
+                            });
+                        }
+
+                        displayLinks(result.data);
+                    } else { throw new Error(result.error.message); }
+                } catch (error) {
+                    alert(`Error: ${error.message}`);
+                    resetUploader();
                 }
             }
-            function startMessageSequence() { currentMessageIndex = 0; showNextMessage(); }
+
+            window.displayLinks = (data) => {
+                linksContainer.style.display = 'block';
+                progressContainer.style.display = 'none';
+
+                const viewerUrl = data.url_viewer;
+                const imageUrl = data.url;
+                const thumbUrl = data.thumb.url;
+                const deleteUrl = data.delete_url;
+
+                linksContainer.innerHTML = `
+                    <h2 style="text-align: center; color: #333; margin-bottom: 20px;">Upload Successful!</h2>
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <a href="${viewerUrl}" target="_blank">
+                            <img src="${imageUrl}" style="max-width: 100%; max-height: 280px; border: 1px solid #ddd; border-radius: 8px; padding: 4px;">
+                        </a>
+                    </div>
+                    <div class="link-item">
+                        <label style="font-weight: bold; margin-bottom: 5px; display: block;">Viewer Link:</label>
+                        <div class="link-box"><input id="viewer-link" value="${viewerUrl}" readonly><button onclick="copyToClipboard('viewer-link')">Copy</button></div>
+                    </div>
+                    <div class="link-item">
+                        <label style="font-weight: bold; margin-bottom: 5px; display: block;">Direct Link:</label>
+                        <div class="link-box"><input id="direct-link" value="${imageUrl}" readonly><button onclick="copyToClipboard('direct-link')">Copy</button></div>
+                    </div>
+                    <div class="link-item">
+                        <label style="font-weight: bold; margin-bottom: 5px; display: block;">Markdown:</label>
+                        <div class="link-box"><input id="markdown-link" value="![${data.title}](${imageUrl})" readonly><button onclick="copyToClipboard('markdown-link')">Copy</button></div>
+                    </div>
+                    <div class="link-item">
+                        <label style="font-weight: bold; margin-bottom: 5px; display: block;">Thumbnail for Forums:</label>
+                        <div class="link-box"><input id="thumb-forum-link" value="[url=${viewerUrl}][img]${thumbUrl}[/img][/url]" readonly><button onclick="copyToClipboard('thumb-forum-link')">Copy</button></div>
+                    </div>
+                    <div class="link-item">
+                        <label style="font-weight: bold; margin-bottom: 5px; display: block;">Thumbnail for Website:</label>
+                        <div class="link-box"><input id="thumb-html-link" value='<a href="${viewerUrl}" target="_blank"><img src="${thumbUrl}" alt="${data.title}"></a>' readonly><button onclick="copyToClipboard('thumb-html-link')">Copy</button></div>
+                    </div>
+                    <div class="link-item">
+                        <label style="font-weight: bold; margin-bottom: 5px; display: block;">Delete Link:</label>
+                        <div class="link-box"><input id="delete-link" value="${deleteUrl}" readonly><button onclick="copyToClipboard('delete-link')">Copy</button></div>
+                    </div>
+                    <button class="choose-images-button" onclick="resetUploader()" style="margin-top: 25px;">Upload Another Image</button>
+                `;
+            };
+            
+            window.resetUploader = () => {
+                linksContainer.innerHTML = '';
+                linksContainer.style.display = 'none';
+                progressContainer.style.display = 'none';
+                document.getElementById('progress-bar').style.width = '0%';
+                uploadContainer.style.display = 'block';
+                imageInput.value = '';
+            };
+
+            window.copyToClipboard = (id) => {
+                const input = document.getElementById(id);
+                input.select(); 
+                input.setSelectionRange(0, 99999); 
+                navigator.clipboard.writeText(input.value).then(() => {
+                    alert('Copied!');
+                }).catch(() => {
+                    document.execCommand('copy'); 
+                    alert('Copied!');
+                });
+            };
+
+            const paymentModal = document.getElementById('payment-modal-overlay');
+            document.querySelectorAll('.plan-card:not(.free-token-notice)').forEach(card => {
+                card.addEventListener('click', () => {
+                    const user = auth.currentUser;
+                    if(!user) {
+                        alert('Please login or register to buy a plan.');
+                        showAuthModal('login');
+                    } else {
+                        const price = card.dataset.price;
+                        paymentModal.innerHTML = `
+                            <div class="modal-content">
+                                <span class="modal-close-button">&times;</span>
+                                <div class="bkash-header">
+                                    <img id="payment-banner-img" src="${paymentBannerUrl}" alt="bKash Payment" onerror="this.onerror=null; this.src='https://i.ibb.co/L9H8qD4/bkash-logo.png';">
+                                </div>
+                                <div class="bkash-body">
+                                    <div class="bkash-amount">৳ ${price}</div>
+                                    <div class="bkash-pink-box">
+                                        <h3>পেমেন্ট করার নিয়মাবলী</h3>
+                                        <form id="verify-payment-form">
+                                            <ul class="bkash-instructions">
+                                                <li>১. আপনার বিকাশ অ্যাপ অথবা *247# ডায়াল করুন।</li>
+                                                <li>২. নিচে দেওয়া নাম্বারে <b>Send Money</b> করুন:</li>
+                                                <li class="bkash-number-copy">
+                                                    <span>${paymentNumber}</span>
+                                                    <button type="button" id="copy-bkash-btn">কপি</button>
+                                                </li>
+                                                <li>৩. টাকার পরিমাণ দিন: <b>৳ ${price}</b></li>
+                                                <li>৪. পেমেন্ট সফল হলে প্রাপ্ত <b>TrxID</b>-টি নিচের ঘরে বসিয়ে ভেরিফাই করুন:</li>
+                                            </ul>
+                                            <input type="text" id="trx-id" placeholder="ট্রানজেকশন আইডি (TrxID) দিন" required>
+                                            <button type="submit" class="verify-button">VERIFY</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>`;
+                        paymentModal.style.display = 'block';
+                        const modalContentElement = paymentModal.querySelector('.modal-content');
+                        if (modalContentElement) modalContentElement.scrollTop = 0;
+
+                        paymentModal.querySelector('.modal-close-button').onclick = () => paymentModal.style.display = 'none';
+                        paymentModal.querySelector('#copy-bkash-btn').onclick = () => { navigator.clipboard.writeText(paymentNumber); alert('নাম্বার কপি করা হয়েছে!'); };
+                        document.getElementById('verify-payment-form').onsubmit = e => {
+                            e.preventDefault();
+                            const trxId = document.getElementById('trx-id').value;
+                            if(trxId) {
+                                database.ref('pending_payments').push({ userEmail: user.email, plan: card.dataset.plan, price: price, trxId: trxId, timestamp: Date.now() });
+                                alert('ধন্যবাদ! আপনার পেমেন্ট ভেরিফিকেশন রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে। এডমিন চেক করে দ্রুত টোকেন যুক্ত করে দেবে।');
+                                paymentModal.style.display = 'none';
+                            }
+                        };
+                    }
+                });
+            });
         });
+    </script>
+
+    <!-- ✅ PWA: Service Worker রেজিস্টার + অনলাইন/অফলাইন ডিটেক্ট (নতুন যোগ) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('✅ Service Worker রেজিস্টার হয়েছে:', reg.scope))
+                    .catch(err => console.log('❌ Service Worker রেজিস্টার হয়নি:', err));
+            });
+        }
+
+        const offlineBanner = document.getElementById('offline-banner');
+        function updateOnlineStatus() {
+            offlineBanner.style.display = navigator.onLine ? 'none' : 'block';
+        }
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
     </script>
 </body>
 </html>
